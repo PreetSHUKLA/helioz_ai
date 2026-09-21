@@ -1,0 +1,116 @@
+{
+  "course_title": "Course Content",
+  "modules": [
+    {
+      "topic": "Introduction to Signals and Systems",
+      "video_url": "https://www.youtube.com/watch?v=rw3U87aVfhc",
+      "video_title": "Essentials of Signals &amp; Systems: Part 1",
+      "quiz": [
+        {
+          "question": "According to the video, what happens to the zero-time point of a function when it is convolved with a Delta function at time T = 2?",
+          "options": [
+            "The entire function becomes centered at T = 2.",
+            "The zero-time point of the function is relocated to T = 2.",
+            "The function is shifted to the left by 2 units.",
+            "The function is multiplied by 2 at every time interval."
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question": "If a rectangular (rect) function is expanded in the time domain, what is the resulting effect on its Fourier transform (sync function) in the frequency domain?",
+          "options": [
+            "The sync function also expands in the frequency domain.",
+            "The sync function remains unchanged.",
+            "The sync function contracts in the frequency domain.",
+            "The sync function shifts to a higher frequency."
+          ],
+          "correct_answer": "C"
+        },
+        {
+          "question": "When a cosine wave at a specific frequency (F1) is passed through a Linear Time-Invariant (LTI) system, how does the output signal relate to the input signal?",
+          "options": [
+            "The output frequency shifts based on the transfer function.",
+            "The output becomes a sinc function rather than a sinusoid.",
+            "The output remains at frequency F1, but its amplitude and phase may change.",
+            "The output frequency doubles because of the multiplication property."
+          ],
+          "correct_answer": "C"
+        }
+      ]
+    },
+    {
+      "topic": "Linear Time Invariant (LTI) System Overview",
+      "video_url": "https://www.youtube.com/watch?v=5JCuqlExTvo",
+      "video_title": "What is a Linear Time Invariant (LTI) System?",
+      "quiz": [
+        {
+          "question": "According to the transcript, which property of a system ensures that if the input is shifted in time, the output is shifted by the exact same amount?",
+          "options": [
+            "Linearity",
+            "Convolution",
+            "Time Invariance",
+            "Rectification"
+          ],
+          "correct_answer": "C"
+        },
+        {
+          "question": "How is the output (y(t)) of a Linear Time Invariant (LTI) system mathematically related to the input (x(t)) and the impulse response (h(t))?",
+          "options": [
+            "The output is the square of the input signal.",
+            "The output is the integral of the input signal plus the impulse response.",
+            "The output is determined by the convolution of the input and the impulse response.",
+            "The output is always a scaled version of the input controlled by a constant beta."
+          ],
+          "correct_answer": "C"
+        },
+        {
+          "question": "Why is a practical amplifier with a threshold (where the output stops increasing despite an increase in input voltage) considered non-linear?",
+          "options": [
+            "It shifts the signal in time unexpectedly.",
+            "It fails to maintain the proportional relationship between input and output across all values.",
+            "It uses a delta function which is inherently non-linear.",
+            "It only responds to impulses at time zero."
+          ],
+          "correct_answer": "B"
+        }
+      ]
+    },
+    {
+      "topic": "Laplace Transform and its properties",
+      "video_url": "https://www.youtube.com/watch?v=j0wJBEZdwLs",
+      "video_title": "But what is a Laplace Transform?",
+      "quiz": [
+        {
+          "question": "What does a 'pole' in the s-plane represent regarding the original function f(t)?",
+          "options": [
+            "The point where the function's derivative is zero.",
+            "The specific value of 's' that corresponds to an exponential piece within the function.",
+            "The time 't' at which the function reaches its maximum value.",
+            "The area under the curve of the function from zero to infinity."
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question": "According to the transcript, why is the Laplace transform particularly useful for solving differential equations?",
+          "options": [
+            "It eliminates the need for complex numbers by using the s-plane.",
+            "It turns integration into simple addition.",
+            "It turns differential equations into algebra because taking a derivative corresponds to multiplication by s.",
+            "It allows for the calculation of area under non-convergent real-valued functions."
+          ],
+          "correct_answer": "C"
+        },
+        {
+          "question": "What is 'analytic continuation' in the context of the Laplace transform described in the video?",
+          "options": [
+            "The process of repeating an experiment to ensure the data is consistent.",
+            "A method to extend the domain of a function beyond where the defining integral converges, often revealing hidden poles.",
+            "The act of adding more exponential terms to a Fourier series.",
+            "A way to turn a complex-valued function into a real-valued function for easier graphing."
+          ],
+          "correct_answer": "B"
+        }
+      ]
+    }
+  ]
+}

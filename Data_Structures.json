@@ -1,0 +1,190 @@
+{
+  "course_title": "Data Structures",
+  "modules": [
+    {
+      "topic": "Arrays and Strings",
+      "video_url": "https://www.youtube.com/watch?v=TQMvBTKn2p0",
+      "video_title": "Static Arrays, Dynamic Arrays, and Strings - Big O Complexity - DSA Course in Python Lecture 2",
+      "quiz": [
+        {
+          "question": "When using a dynamic array (like a Python list), why is appending to the end considered O(1) on average (amortized) rather than always being O(n)?",
+          "options": [
+            "Because the array is stored in non-contiguous memory, allowing new elements to be added anywhere.",
+            "Because the underlying static array often has extra pre-allocated space, so a full copy only happens occasionally.",
+            "Because Python automatically converts static arrays into strings to save space.",
+            "Because appending at the end does not require checking the length of the array."
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question": "Which of the following operations has the same Big O time complexity for both a Python list (dynamic array) and a Python string?",
+          "options": [
+            "Appending an element to the end",
+            "Modifying an element at a specific index",
+            "Popping an element from the end",
+            "Checking if a specific value exists within the structure"
+          ],
+          "correct_answer": "D"
+        },
+        {
+          "question": "If you have a static array of length 5 containing [1, 2, 3, 4, 5] and you want to delete the element at index 1 (the value '2') while maintaining a contiguous block, what is the required operation and its complexity?",
+          "options": [
+            "A reverse shift of subsequent elements, taking O(n) time.",
+            "Immediate removal of the value, taking O(1) time.",
+            "A forward shift of all elements, taking O(1) time.",
+            "Doubling the array size first, taking O(n) time."
+          ],
+          "correct_answer": "A"
+        }
+      ]
+    },
+    {
+      "topic": "Linked Lists",
+      "video_url": "https://www.youtube.com/watch?v=N6dOwBde7-M",
+      "video_title": "Learn Linked Lists in 13 minutes \ud83d\udd17",
+      "quiz": [
+        {
+          "question": "Why is inserting a new element at the beginning of a large data set generally more efficient in a linked list than in an array?",
+          "options": [
+            "Linked lists allow for random access to any position via an index.",
+            "Arrays require shifting all subsequent elements to the right to accommodate the new value.",
+            "Linked lists store elements in contiguous memory locations, making them faster to organize.",
+            "Linked lists use less memory per node because they do not require pointers."
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question": "If you are using a linked list and need to find a specific value, how does the search process typically occur?",
+          "options": [
+            "The computer uses the index to jump directly to the specific memory address.",
+            "The computer performs a binary search because the nodes are sorted by memory address.",
+            "The computer starts at the head and follows the pointers from node to node until the value is found.",
+            "The computer accesses the tail and calculates the exact location of the value using a mathematical formula."
+          ],
+          "correct_answer": "C"
+        },
+        {
+          "question": "What is the primary trade-off mentioned when choosing a doubly linked list over a singly linked list?",
+          "options": [
+            "Doubly linked lists are faster at searching but occupy significantly less memory.",
+            "Doubly linked lists allow for bidirectional traversal but require more memory to store extra pointers.",
+            "Doubly linked lists can only be used as stacks, whereas singly linked lists are for queues.",
+            "Doubly linked lists use contiguous memory, while singly linked lists use non-contiguous memory."
+          ],
+          "correct_answer": "B"
+        }
+      ]
+    },
+    {
+      "topic": "Big O Notation",
+      "video_url": "https://www.youtube.com/watch?v=BgLTDT03QtU",
+      "video_title": "Big-O Notation - For Coding Interviews",
+      "quiz": [
+        {
+          "question": "When calculating Big O time complexity, how should constant values (such as n/2 or n + 5) be treated according to the transcript?",
+          "options": [
+            "Constants are kept because they change the slope of the growth function.",
+            "Constants are ignored because we only care about how the runtime grows relative to the variable n.",
+            "Constants are only ignored if the algorithm is linear.",
+            "Constants are added together to determine the final exponent."
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question": "Which of the following describes why the 'heapify' algorithm (building a heap from an existing list) is considered an O(n) operation rather than O(n log n)?",
+          "options": [
+            "It uses a hash map to store the elements first.",
+            "It involves building the heap from scratch rather than individually pushing elements one by one.",
+            "It only works on arrays that are already sorted.",
+            "It is a constant time operation regardless of the input size."
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question": "In the transcript, how is the time complexity of a recursive decision tree with 'c' branches and a height of 'n' calculated?",
+          "options": [
+            "It is O(n^c) because n is the base and c is the exponent.",
+            "It is O(c * n) because you multiply the branches by the height.",
+            "It is O(c^n) because the number of branches is multiplied by itself 'n' times.",
+            "It is O(log n) because the tree eliminates half of the elements at each level."
+          ],
+          "correct_answer": "C"
+        }
+      ]
+    },
+    {
+      "topic": "Hash Tables",
+      "video_url": "https://www.youtube.com/watch?v=FsfRsGFHuv4",
+      "video_title": "Learn Hash Tables in 13 minutes #\ufe0f\u20e3",
+      "quiz": [
+        {
+          "question": "If a hash table has a capacity of 10 and uses the modulus operator (hash % capacity) to determine indices, at which index would a key with a hash code of 123 be placed?",
+          "options": [
+            "1",
+            "2",
+            "3",
+            "0"
+          ],
+          "correct_answer": "3"
+        },
+        {
+          "question": "When a 'collision' occurs in a hash table, what is the most common resolution method described in the transcript?",
+          "options": [
+            "Replacing the old entry with the new entry.",
+            "Increasing the capacity of the table immediately.",
+            "Converting the bucket into a linked list to store multiple entries.",
+            "Ignoring the new entry to prevent data corruption."
+          ],
+          "correct_answer": "C"
+        },
+        {
+          "question": "How does the runtime complexity of a hash table change when it transitions from having no collisions to a worst-case scenario where all entries are in the same bucket?",
+          "options": [
+            "It stays constant at O(1).",
+            "It changes from O(1) to O(n).",
+            "It changes from O(n) to O(1).",
+            "It becomes O(log n) because of the linked list structure."
+          ],
+          "correct_answer": "B"
+        }
+      ]
+    },
+    {
+      "topic": "Binary Trees",
+      "video_url": "https://www.youtube.com/watch?v=EPwWrs8OtfI",
+      "video_title": "Binary Trees &amp; Binary Search Trees - DSA Course in Python Lecture 8",
+      "quiz": [
+        {
+          "question": "If a binary tree is represented in an array where the root is at index 1, what are the indices of the left and right children for a parent node located at index 'i'?",
+          "options": [
+            "Left: i + 1, Right: i + 2",
+            "Left: 2i, Right: 2i + 1",
+            "Left: i/2, Right: (i/2) + 1",
+            "Left: 2i - 1, Right: 2i + 1"
+          ],
+          "correct_answer": "B"
+        },
+        {
+          "question": "Which traversal method would process a Binary Search Tree's (BST) nodes in non-decreasing numerical order?",
+          "options": [
+            "Pre-order traversal",
+            "Post-order traversal",
+            "In-order traversal",
+            "Level-order traversal"
+          ],
+          "correct_answer": "C"
+        },
+        {
+          "question": "Why is the space complexity of a Depth-First Search (DFS) on a binary tree considered O(n) in the worst case, even though it's often written as O(h) where h is the height?",
+          "options": [
+            "Because DFS requires a queue that stores all nodes at the bottom level.",
+            "Because the tree could be skewed (like a linked list), making the height equal to the number of nodes.",
+            "Because the recursive call stack always doubles at every level of the tree.",
+            "Because every node must be stored in a hash map to check for cycles."
+          ],
+          "correct_answer": "B"
+        }
+      ]
+    }
+  ]
+}
