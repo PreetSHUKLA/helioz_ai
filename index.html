@@ -5,8 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Notebooks</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- FIX: Global YouTube API Signal Catcher -->
+    <script>
+        window.ytAPIReady = false;
+        window.onYouTubeIframeAPIReady = function() {
+            window.ytAPIReady = true;
+            if (typeof window.initPlayer === 'function') {
+                window.initPlayer();
+            }
+        };
+    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <style>
         body { background-color: #ffffff; overflow-x: hidden; }
         .fade-in { animation: fadeIn 0.4s ease-in forwards; }
@@ -154,11 +166,9 @@
                 <!-- Toolbar with Exit & Sidebar Buttons -->
                 <div class="bg-white border-b-2 border-black p-4 flex justify-between items-center z-10 shrink-0">
                     <div class="flex items-center gap-3">
-                        <!-- Sidebar Toggle -->
                         <button onclick="toggleSidebar()" class="text-black hover:bg-green-200 transition border-2 border-black p-3 rounded-full font-bold bg-white" title="Toggle Sidebar">
                             <svg id="sidebar-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 6h16M4 12h16M4 18h7"></path></svg>
                         </button>
-                        <!-- Exit to Home Button -->
                         <button onclick="exitToDashboard()" class="flex items-center gap-2 bg-gray-100 hover:bg-red-100 text-black border-2 border-black px-4 py-2 rounded-full font-black text-sm transition" title="Exit to Dashboard">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                             Exit Course
@@ -184,9 +194,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-        // ==========================================
-        // 1. FEATURED COURSES (Static / Instant Load)
-        // ==========================================
+        // 1. FEATURED COURSES
         window.featuredCourses = [
             {
                 "id": "featured-c-programming",
@@ -196,103 +204,23 @@
                     {
                         "topic": "1. Introduction to C & Architecture",
                         "video_url": "https://www.youtube.com/watch?v=KJgsSFOSQv0",
-                        "quiz": [
-                            {
-                                "question": "Which component in C translates source code into machine-executable binary code?",
-                                "options": ["Preprocessor", "Compiler", "Linker", "Operating System"],
-                                "correct_answer": "Compiler"
-                            },
-                            {
-                                "question": "What is the return type of the main() function by standard C convention?",
-                                "options": ["void", "int", "float", "char"],
-                                "correct_answer": "int"
-                            }
-                        ]
+                        "quiz": [{"question": "Which component in C translates source code into machine-executable binary code?", "options": ["Preprocessor", "Compiler", "Linker", "Operating System"], "correct_answer": "Compiler"}]
                     },
                     {
                         "topic": "2. Control Flow, Loops and Conditionals",
                         "video_url": "https://www.youtube.com/watch?v=kbc_5aGg44w",
-                        "quiz": [
-                            {
-                                "question": "Which loop is guaranteed to execute at least once regardless of the condition?",
-                                "options": ["while loop", "for loop", "do-while loop", "nested loop"],
-                                "correct_answer": "do-while loop"
-                            },
-                            {
-                                "question": "What statement is used to immediately exit a switch block?",
-                                "options": ["continue", "break", "return", "exit"],
-                                "correct_answer": "break"
-                            }
-                        ]
+                        "quiz": [{"question": "Which statement is used to immediately exit a switch block?", "options": ["continue", "break", "return", "exit"], "correct_answer": "break"}]
                     },
                     {
                         "topic": "3. Pointers and Memory Management",
                         "video_url": "https://www.youtube.com/watch?v=zuegQmMdy8M",
-                        "quiz": [
-                            {
-                                "question": "Which operator is used to obtain the memory address of a variable in C?",
-                                "options": ["*", "&", "->", "%"],
-                                "correct_answer": "&"
-                            },
-                            {
-                                "question": "Which standard library function dynamically allocates memory on the heap without zero-initializing it?",
-                                "options": ["calloc()", "malloc()", "realloc()", "free()"],
-                                "correct_answer": "malloc()"
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "id": "featured-eng-math",
-                "course_title": "Engineering Mathematics",
-                "is_featured": true,
-                "modules": [
-                    {
-                        "topic": "1. Linear Algebra: Matrices & Determinants",
-                        "video_url": "https://www.youtube.com/watch?v=kYB8IZa5AuE",
-                        "quiz": [
-                            {
-                                "question": "What is the determinant of an identity matrix of any dimension?",
-                                "options": ["0", "-1", "1", "Undefined"],
-                                "correct_answer": "1"
-                            },
-                            {
-                                "question": "If the determinant of matrix A is 0, the matrix is called:",
-                                "options": ["Orthogonal", "Singular (Non-invertible)", "Symmetric", "Diagonal"],
-                                "correct_answer": "Singular (Non-invertible)"
-                            }
-                        ]
-                    },
-                    {
-                        "topic": "2. Eigenvalues and Eigenvectors",
-                        "video_url": "https://www.youtube.com/watch?v=PFDu9oVAE-g",
-                        "quiz": [
-                            {
-                                "question": "In the equation Av = λv, what does λ represent?",
-                                "options": ["Eigenvector", "Eigenvalue", "Trace", "Rank"],
-                                "correct_answer": "Eigenvalue"
-                            }
-                        ]
-                    },
-                    {
-                        "topic": "3. Differential Calculus: Partial Derivatives",
-                        "video_url": "https://www.youtube.com/watch?v=AXqhWeUEtQU",
-                        "quiz": [
-                            {
-                                "question": "When taking a partial derivative with respect to x, all other variables are treated as:",
-                                "options": ["Zero", "Variables", "Constants", "Functions"],
-                                "correct_answer": "Constants"
-                            }
-                        ]
+                        "quiz": [{"question": "Which standard library function dynamically allocates memory on the heap?", "options": ["calloc()", "malloc()", "realloc()", "free()"], "correct_answer": "malloc()"}]
                     }
                 ]
             }
         ];
 
-        // ==========================================
-        // 2. FIREBASE CONFIG
-        // ==========================================
+        // 2. FIREBASE CONFIG (Ensure your keys are here)
         const firebaseConfig = {
             apiKey: "AIzaSyAa3ESZpGZ_hoY3-sMvPiLDFpCkcTqBxwc",
             authDomain: "helioz-e8c32.firebaseapp.com",
@@ -301,7 +229,6 @@
             messagingSenderId: "123456789",
             appId: "1:123456789:web:abcdef"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
@@ -309,8 +236,8 @@
         window.savedNotebooks = [];
         window.currentCourseData = null;
         window.currentModuleIndex = 0;
+        window.ytPlayerObj = null;
         let isLoginMode = true;
-        let ytPlayer = null;
 
         // Render Featured Courses
         function renderFeaturedCourses() {
@@ -330,7 +257,7 @@
         }
         renderFeaturedCourses();
 
-        // Switch Screen Views
+        // View Management
         window.switchView = (viewName) => {
             ['login', 'dashboard', 'create', 'loading', 'course'].forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
@@ -339,7 +266,9 @@
         };
 
         window.exitToDashboard = () => {
-            if (ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+            if (window.ytPlayerObj && typeof window.ytPlayerObj.stopVideo === 'function') {
+                window.ytPlayerObj.stopVideo();
+            }
             switchView('dashboard');
         };
 
@@ -356,70 +285,33 @@
             const password = document.getElementById('auth-password').value;
             if (!email || !password) return alert("Please enter both email and password.");
             try {
-                if (isLoginMode) {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } else {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                }
-            } catch (error) {
-                alert(error.message);
-            }
+                if (isLoginMode) await signInWithEmailAndPassword(auth, email, password);
+                else await createUserWithEmailAndPassword(auth, email, password);
+            } catch (error) { alert(error.message); }
         };
 
         window.logout = () => signOut(auth);
+        window.goHome = () => auth.currentUser ? switchView('dashboard') : switchView('login');
 
-        window.goHome = () => {
-            if (auth.currentUser) switchView('dashboard');
-            else switchView('login');
-        };
-
-        window.updateFileLabel = (input) => {
-            const label = document.getElementById('file-name');
-            if (input.files && input.files[0]) {
-                label.textContent = input.files[0].name;
-                label.classList.remove('hidden');
-            } else {
-                label.classList.add('hidden');
-            }
-        };
-
-        window.toggleSidebar = () => {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('sidebar-collapsed');
-            const icon = document.getElementById('sidebar-icon');
-            if (sidebar.classList.contains('sidebar-collapsed')) {
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 6h16M4 12h16M4 18h16"></path>`;
-            } else {
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 6h16M4 12h16M4 18h7"></path>`;
-            }
-        };
-
-        // Fetch User Notebooks
+        // Notebook Management
         window.fetchNotebooks = async () => {
             const user = auth.currentUser;
             if (!user) return;
             try {
                 const idToken = await user.getIdToken();
-                const response = await fetch('/api/notebooks', {
-                    headers: { 'Authorization': `Bearer ${idToken}` }
-                });
+                const response = await fetch('/api/notebooks', { headers: { 'Authorization': `Bearer ${idToken}` } });
                 const notebooks = await response.json();
                 window.savedNotebooks = notebooks;
                 renderDashboard(notebooks);
-            } catch (error) {
-                console.error("Error fetching notebooks:", error);
-            }
+            } catch (error) { console.error("Error fetching notebooks:", error); }
         };
 
-        // Render User Dashboard
         window.renderDashboard = (notebooks) => {
             const grid = document.getElementById('notebooks-grid');
             grid.innerHTML = '';
-            
-            const countLabel = document.getElementById('notebook-count-label');
-            countLabel.innerText = `${notebooks.length} / 3 Notebooks Used`;
-
+            document.getElementById('notebook-count-label').innerText = `${notebooks.length} / 3 Notebooks Used`;
             const createBtn = document.getElementById('create-nb-btn');
+            
             if (notebooks.length >= 3) {
                 createBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 createBtn.setAttribute('title', 'Max limit of 3 reached');
@@ -450,29 +342,15 @@
             });
         };
 
-        // Open Saved Notebook
         window.openNotebook = (id) => {
             const selected = window.savedNotebooks.find(n => n.id === id);
-            if (selected) {
-                window.currentCourseData = selected;
-                startCoursePlayer();
-            }
+            if (selected) { window.currentCourseData = selected; startCoursePlayer(); }
         };
 
-        // Open Featured Course
         window.openFeaturedCourse = (id) => {
             const selected = window.featuredCourses.find(c => c.id === id);
-            if (selected) {
-                window.currentCourseData = selected;
-                startCoursePlayer();
-            }
+            if (selected) { window.currentCourseData = selected; startCoursePlayer(); }
         };
-
-        function startCoursePlayer() {
-            buildPlaylist();
-            switchView('course');
-            loadModule(0);
-        }
 
         window.deleteNotebook = async (id, event) => {
             event.stopPropagation();
@@ -481,42 +359,28 @@
             if (!user) return;
             try {
                 const idToken = await user.getIdToken();
-                await fetch(`/api/notebooks/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${idToken}` }
-                });
+                await fetch(`/api/notebooks/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${idToken}` } });
                 fetchNotebooks();
-            } catch (error) {
-                alert("Failed to delete notebook.");
-            }
+            } catch (error) { alert("Failed to delete notebook."); }
         };
 
-        // Generate Custom Course AI
         window.startGeneration = async () => {
-            if (window.savedNotebooks.length >= 3) {
-                return alert("Maximum limit of 3 notebooks reached. Please delete one first.");
-            }
-
+            if (window.savedNotebooks.length >= 3) return alert("Maximum limit of 3 notebooks reached. Please delete one first.");
             const textInput = document.getElementById('syllabus-input').value;
             const fileInput = document.getElementById('syllabus-image').files[0];
             if (!textInput && !fileInput) return alert("Please enter syllabus topics or select an image.");
-
+            
             const user = auth.currentUser;
             if (!user) return alert("Please log in first.");
 
             switchView('loading');
-
             const formData = new FormData();
             if (textInput) formData.append('syllabus_text', textInput);
             if (fileInput) formData.append('image', fileInput);
 
             try {
                 const idToken = await user.getIdToken();
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Authorization': `Bearer ${idToken}` }
-                });
+                const response = await fetch('/api/generate', { method: 'POST', body: formData, headers: { 'Authorization': `Bearer ${idToken}` } });
                 const result = await response.json();
                 if (result.error) throw new Error(result.error);
                 
@@ -529,23 +393,28 @@
             }
         };
 
-        // YouTube Player Initialization
-        function initializeYouTubePlayer() {
-            if (window.YT && window.YT.Player) {
-                ytPlayer = new YT.Player('yt-player', {
+        // Player & Module Logic
+        function startCoursePlayer() {
+            buildPlaylist();
+            switchView('course');
+            loadModule(0);
+        }
+
+        // FIX: The YouTube Init function that catches the global signal
+        window.initPlayer = () => {
+            if (window.YT && window.YT.Player && !window.ytPlayerObj) {
+                window.ytPlayerObj = new window.YT.Player('yt-player', {
                     height: '100%', width: '100%', videoId: '',
                     playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0 },
                     events: { 'onStateChange': onPlayerStateChange }
                 });
             }
-        }
-
-        window.onYouTubeIframeAPIReady = () => {
-            initializeYouTubePlayer();
         };
+        // Fire it immediately if the script loaded before this module
+        if (window.ytAPIReady) window.initPlayer();
 
         function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.ENDED) {
+            if (event.data === window.YT.PlayerState.ENDED) {
                 document.getElementById('video-container').classList.add('hidden');
                 renderQuizForm();
                 document.getElementById('quiz-container').classList.remove('hidden');
@@ -572,19 +441,19 @@
             document.getElementById('video-container').classList.remove('hidden');
 
             let videoId = module.video_url;
-            if (videoId.includes('v=')) {
-                videoId = videoId.split('v=')[1].split('&')[0];
-            }
+            if (videoId.includes('v=')) videoId = videoId.split('v=')[1].split('&')[0];
 
-            if (ytPlayer && ytPlayer.loadVideoById) {
-                ytPlayer.loadVideoById(videoId);
-            } else {
-                // Ensure player loads if ready state was pending
-                setTimeout(() => {
-                    if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(videoId);
-                }, 800);
-            }
+            // FIX: Guaranteed retry loop until the player is fully built
+            const playVideo = () => {
+                if (window.ytPlayerObj && typeof window.ytPlayerObj.loadVideoById === 'function') {
+                    window.ytPlayerObj.loadVideoById(videoId);
+                } else {
+                    setTimeout(playVideo, 500);
+                }
+            };
+            playVideo();
         }
+        window.loadModule = loadModule;
 
         function buildPlaylist() {
             const list = document.getElementById('playlist');
@@ -602,96 +471,6 @@
                 </div>`;
             });
         }
-        window.loadModule = loadModule;
-
-        function renderQuizForm() {
-            const quizData = window.currentCourseData.modules[window.currentModuleIndex].quiz;
-            const container = document.getElementById('quiz-container');
-            
-            if (!quizData || quizData.length === 0) {
-                container.innerHTML = `<p class="text-center font-bold text-gray-500">No quiz required for this module.</p>
-                <button onclick="proceedToNext()" class="mt-6 bg-black text-white px-6 py-3 rounded-xl font-bold">Next Module</button>`;
-                return;
-            }
-
-            let formHTML = `<div class="max-w-3xl w-full">
-                <div class="text-center mb-8">
-                    <h3 class="text-4xl font-black text-black mb-2">Module Quiz</h3>
-                    <p class="text-gray-500 font-bold">Test your comprehension before proceeding.</p>
-                </div>
-                <form id="quiz-form" class="space-y-6">`;
-
-            quizData.forEach((q, qIndex) => {
-                formHTML += `
-                <div class="bg-white p-6 rounded-3xl border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                    <p class="font-black text-lg mb-4 text-black">${qIndex + 1}. ${q.question}</p>
-                    <div class="space-y-2">`;
-                
-                q.options.forEach((opt) => {
-                    formHTML += `
-                    <label class="flex items-center space-x-3 p-3 rounded-2xl bg-gray-50 border-2 border-gray-200 hover:border-black cursor-pointer transition w-full group">
-                        <input type="radio" name="q${qIndex}" value="${opt}" class="w-5 h-5 text-black bg-white border-2 border-black focus:ring-black">
-                        <span class="text-black font-bold">${opt}</span>
-                    </label>`;
-                });
-                formHTML += `</div></div>`;
-            });
-
-            formHTML += `</form>
-                <button onclick="submitQuiz()" class="mt-8 w-full bg-green-300 hover:bg-green-400 text-black border-2 border-black py-4 rounded-2xl font-black text-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1">
-                    Check Answers
-                </button>
-            </div>`;
-            container.innerHTML = formHTML;
-        }
-
-        window.submitQuiz = () => {
-            const quizData = window.currentCourseData.modules[window.currentModuleIndex].quiz;
-            let allAnswered = true;
-            let moduleScore = 0;
-
-            quizData.forEach((q, qIndex) => {
-                const selected = document.querySelector(`input[name="q${qIndex}"]:checked`);
-                if (!selected) {
-                    allAnswered = false;
-                } else if (selected.value === q.correct_answer) {
-                    moduleScore++;
-                }
-            });
-
-            if (!allAnswered) return alert("Please answer all questions before submitting.");
-
-            const container = document.getElementById('quiz-container');
-            const isPerfect = moduleScore === quizData.length;
-            
-            container.innerHTML = `
-                <div class="text-center max-w-xl w-full mx-auto bg-white border-2 border-black rounded-[2rem] p-10 shadow-[8px_8px_0px_rgba(0,0,0,1)] fade-in">
-                    <h3 class="text-3xl font-black mb-3">Module Complete!</h3>
-                    <div class="text-7xl font-black mb-6 ${isPerfect ? 'text-green-500' : 'text-black'}">
-                        ${moduleScore}<span class="text-3xl text-gray-400">/${quizData.length}</span>
-                    </div>
-                    <button onclick="proceedToNext()" class="bg-black hover:bg-gray-800 text-white font-black py-4 px-8 rounded-2xl w-full border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 text-lg">
-                        ${window.currentModuleIndex + 1 < window.currentCourseData.modules.length ? 'Continue to Next Module ➔' : 'Complete Course'}
-                    </button>
-                </div>`;
-
-            if (isPerfect) {
-                confetti({
-                    particleCount: 150,
-                    spread: 80,
-                    origin: { y: 0.6 },
-                    colors: ['#000000', '#86efac', '#4ade80', '#ffffff']
-                });
-            }
-        };
-
-        window.proceedToNext = () => {
-            if (window.currentModuleIndex + 1 < window.currentCourseData.modules.length) {
-                loadModule(window.currentModuleIndex + 1);
-            } else {
-                switchView('dashboard');
-            }
-        };
 
         // Auth state observer
         onAuthStateChanged(auth, (user) => {
@@ -706,6 +485,67 @@
                 switchView('login');
             }
         });
+        
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('sidebar-collapsed');
+            const icon = document.getElementById('sidebar-icon');
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 6h16M4 12h16M4 18h16"></path>`;
+            } else {
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 6h16M4 12h16M4 18h7"></path>`;
+            }
+        };
+
+        window.submitQuiz = () => {
+            const quizData = window.currentCourseData.modules[window.currentModuleIndex].quiz;
+            let allAnswered = true; let moduleScore = 0;
+            quizData.forEach((q, qIndex) => {
+                const selected = document.querySelector(`input[name="q${qIndex}"]:checked`);
+                if (!selected) allAnswered = false;
+                else if (selected.value === q.correct_answer) moduleScore++;
+            });
+            if (!allAnswered) return alert("Please answer all questions before submitting.");
+
+            const container = document.getElementById('quiz-container');
+            const isPerfect = moduleScore === quizData.length;
+            container.innerHTML = `
+                <div class="text-center max-w-xl w-full mx-auto bg-white border-2 border-black rounded-[2rem] p-10 shadow-[8px_8px_0px_rgba(0,0,0,1)] fade-in">
+                    <h3 class="text-3xl font-black mb-3">Module Complete!</h3>
+                    <div class="text-7xl font-black mb-6 ${isPerfect ? 'text-green-500' : 'text-black'}">
+                        ${moduleScore}<span class="text-3xl text-gray-400">/${quizData.length}</span>
+                    </div>
+                    <button onclick="proceedToNext()" class="bg-black hover:bg-gray-800 text-white font-black py-4 px-8 rounded-2xl w-full border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 text-lg">
+                        ${window.currentModuleIndex + 1 < window.currentCourseData.modules.length ? 'Continue to Next Module ➔' : 'Complete Course'}
+                    </button>
+                </div>`;
+            if (isPerfect) confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#000000', '#86efac', '#4ade80', '#ffffff'] });
+        };
+
+        window.proceedToNext = () => {
+            if (window.currentModuleIndex + 1 < window.currentCourseData.modules.length) loadModule(window.currentModuleIndex + 1);
+            else switchView('dashboard');
+        };
+
+        function renderQuizForm() {
+            const quizData = window.currentCourseData.modules[window.currentModuleIndex].quiz;
+            const container = document.getElementById('quiz-container');
+            if (!quizData || quizData.length === 0) {
+                container.innerHTML = `<p class="text-center font-bold text-gray-500">No quiz required for this module.</p>
+                <button onclick="proceedToNext()" class="mt-6 bg-black text-white px-6 py-3 rounded-xl font-bold">Next Module</button>`;
+                return;
+            }
+            let formHTML = `<div class="max-w-3xl w-full"><div class="text-center mb-8"><h3 class="text-4xl font-black text-black mb-2">Module Quiz</h3><p class="text-gray-500 font-bold">Test your comprehension before proceeding.</p></div><form id="quiz-form" class="space-y-6">`;
+            quizData.forEach((q, qIndex) => {
+                formHTML += `<div class="bg-white p-6 rounded-3xl border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]"><p class="font-black text-lg mb-4 text-black">${qIndex + 1}. ${q.question}</p><div class="space-y-2">`;
+                q.options.forEach((opt) => {
+                    formHTML += `<label class="flex items-center space-x-3 p-3 rounded-2xl bg-gray-50 border-2 border-gray-200 hover:border-black cursor-pointer transition w-full group"><input type="radio" name="q${qIndex}" value="${opt}" class="w-5 h-5 text-black bg-white border-2 border-black focus:ring-black"><span class="text-black font-bold">${opt}</span></label>`;
+                });
+                formHTML += `</div></div>`;
+            });
+            formHTML += `</form><button onclick="submitQuiz()" class="mt-8 w-full bg-green-300 hover:bg-green-400 text-black border-2 border-black py-4 rounded-2xl font-black text-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1">Check Answers</button></div>`;
+            container.innerHTML = formHTML;
+        }
     </script>
 </body>
 </html>
