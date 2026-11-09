@@ -1,3 +1,18 @@
-
+# Environment & API Keys
 .env
+*.env.local
+
+# Firebase Credentials
 firebase-credentials.json
+
+# Local workspace persistence
+local_notebooks.json
+temp_syllabus.jpg
+
+# Python cache & virtual environments
+__pycache__/
+*.pyc
+venv/
+.venv/
+.idea/
+.vscode/
