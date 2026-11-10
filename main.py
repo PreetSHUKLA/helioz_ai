@@ -3,6 +3,8 @@ from core import parse_syllabus
 from youtube_pipeline import get_candidate_videos
 from evaluator import find_best_video
 from quiz_generator import generate_quiz
+import os
+from dotenv import load_dotenv
 
 def generate_full_course(syllabus_text=None, syllabus_image=None, max_topics=3):
     # 1. Parse Syllabus and extract user preferences
@@ -23,6 +25,7 @@ def generate_full_course(syllabus_text=None, syllabus_image=None, max_topics=3):
         "course_title": course_title,
         "modules": []
     }
+
     
     # Track context across sequential modules
     previous_summary = ""
@@ -74,3 +77,25 @@ def generate_full_course(syllabus_text=None, syllabus_image=None, max_topics=3):
         })
             
     return full_course
+
+def save_course_to_firedb(course_data, user_id="local-developer"):
+    """Stores generated course data directly into FireDB Firestore."""
+    try:
+        import firebase_admin
+        from firebase_admin import credentials, firestore
+
+        creds_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase-credentials.json")
+        if not firebase_admin._apps:
+            cred = credentials.Certificate(creds_path)
+            firebase_admin.initialize_app(cred)
+
+        db = firestore.client()
+        doc_ref = db.collection("notebooks").document()
+        course_data["id"] = doc_ref.id
+        course_data["user_id"] = user_id
+        doc_ref.set(course_data)
+        print(f"\n[+] Course successfully saved to FireDB with ID: {doc_ref.id}")
+        return doc_ref.id
+    except Exception as e:
+        print(f"\n[-] Failed to store course in FireDB: {e}")
+        return None

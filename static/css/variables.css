@@ -1,73 +1,125 @@
 /**
- * Helioz AI - Design Tokens & Variables
- * Architectural Obsidian & Solar Amber Aesthetic
+ * Helioz AI - Design Tokens
+ * Quiet, neutral surfaces with a single ultramarine accent.
+ *
+ * NOTE: variable names are unchanged from the previous theme so any inline
+ * styles in the JS keep resolving. `--solar-*` is now the accent ramp
+ * (ultramarine). `--bg-void` is the page background, `--bg-surface` is
+ * the panel/card colour.
  */
 
 :root {
-  /* Color Palette - The Void & Chassis */
-  --bg-void: #090c12;
-  --bg-surface: #101522;
-  --bg-surface-elevated: #161e30;
-  --bg-surface-glass: rgba(16, 21, 34, 0.85);
-  --bg-input: #0d121c;
+  color-scheme: light dark;
 
-  /* Borders & Rules */
-  --border-subtle: #1c2538;
-  --border-medium: #27344f;
-  --border-highlight: #3b4d73;
-  --border-focus: #f59e0b;
+  /* Surfaces */
+  --bg-void: #f6f7f9;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f0f2f5;
+  --bg-surface-glass: rgba(255, 255, 255, 0.92);
+  --bg-input: #ffffff;
 
-  /* Solar Core (Accent & Energy) */
-  --solar-50: #fffbeb;
-  --solar-100: #fef3c7;
-  --solar-200: #fde68a;
-  --solar-300: #fcd34d;
-  --solar-400: #fbbf24;
-  --solar-500: #f59e0b; /* Primary Brand Accent */
-  --solar-600: #d97706;
-  --solar-glow: rgba(245, 158, 11, 0.25);
-  --solar-pulse: rgba(245, 158, 11, 0.12);
+  /* Borders */
+  --border-subtle: #e6e8ec;
+  --border-medium: #d3d8df;
+  --border-highlight: #b4bcc8;
+  --border-focus: #3451d1;
 
-  /* Secondary Accents */
-  --accent-cyan: #06b6d4;
-  --accent-cyan-glow: rgba(6, 182, 212, 0.25);
-  --accent-emerald: #10b981;
-  --accent-emerald-glow: rgba(16, 185, 129, 0.2);
-  --accent-rose: #f43f5e;
-  --accent-rose-glow: rgba(244, 63, 94, 0.2);
+  /* Accent ramp (kept under the legacy "solar" names) */
+  --solar-50: #f2f4fe;
+  --solar-100: #e3e8fc;
+  --solar-200: #c5cef8;
+  --solar-300: #9aa9f1;
+  --solar-400: #4a63d9;
+  --solar-500: #3451d1;
+  /* Primary accent */
+  --solar-600: #2a41aa;
+  --solar-glow: rgba(52, 81, 209, 0.22);
+  --solar-pulse: rgba(52, 81, 209, 0.08);
 
-  /* Typography Colors */
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverse: #090c12;
+  /* Status colours */
+  --accent-cyan: #0e7490;
+  --accent-cyan-glow: rgba(14, 116, 144, 0.14);
+  --accent-emerald: #047857;
+  --accent-emerald-glow: rgba(4, 120, 87, 0.12);
+  --accent-rose: #be123c;
+  --accent-rose-glow: rgba(190, 18, 60, 0.12);
 
-  /* Typography Stacks */
-  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  /* Text */
+  --text-primary: #15181e;
+  --text-secondary: #454d5c;
+  --text-muted: #687182;
+  --text-inverse: #ffffff;
 
-  /* Elevation & Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
-  --shadow-solar: 0 0 24px rgba(245, 158, 11, 0.18);
-  --shadow-inner: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* Type: one family for everything, mono only for code-like output */
+  --font-display: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', Consolas, monospace;
+
+  /* Elevation: used sparingly */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 2px 8px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.14);
+  --shadow-solar: 0 0 0 3px var(--solar-pulse);
+  --shadow-inner: none;
 
   /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --radius-full: 9999px;
 
   /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 120ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 320ms ease;
+
+  /* Layout */
+  --header-height: 56px;
 
   /* Z-indices */
   --z-header: 100;
   --z-modal: 500;
   --z-toast: 1000;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-void: #0e1014;
+    --bg-surface: #15181e;
+    --bg-surface-elevated: #1c2027;
+    --bg-surface-glass: rgba(21, 24, 30, 0.92);
+    --bg-input: #15181e;
+
+    --border-subtle: #232832;
+    --border-medium: #2f3642;
+    --border-highlight: #444d5c;
+    --border-focus: #8196ff;
+
+    --solar-50: #161b33;
+    --solar-100: #1d2547;
+    --solar-200: #2b3a7a;
+    --solar-300: #5b70d6;
+    --solar-400: #8196ff;
+    --solar-500: #7088ff;
+    --solar-600: #5a72f0;
+    --solar-glow: rgba(112, 136, 255, 0.28);
+    --solar-pulse: rgba(112, 136, 255, 0.12);
+
+    --accent-cyan: #22d3ee;
+    --accent-cyan-glow: rgba(34, 211, 238, 0.18);
+    --accent-emerald: #34d399;
+    --accent-emerald-glow: rgba(52, 211, 153, 0.16);
+    --accent-rose: #fb7185;
+    --accent-rose-glow: rgba(251, 113, 133, 0.16);
+
+    --text-primary: #eceef2;
+    --text-secondary: #a3acba;
+    --text-muted: #7d8797;
+    --text-inverse: #0e1014;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+  }
 }

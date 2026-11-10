@@ -121,6 +121,20 @@ export class Synthesizer {
 
   render(state) {
     if (this.compileBtn) {
+      // 1. If not logged in, prompt sign in
+      if (!state.user || state.user.isGuest) {
+        this.compileBtn.disabled = false;
+        this.compileBtn.title = 'Sign in to compile notebooks';
+        this.compileBtn.innerHTML = `
+          <span>Sign In to Compile</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        `;
+        return;
+      }
+
+      // 2. Existing quota check for logged-in users
       const isQuotaFull = state.userNotebooks.length >= 3;
       if (isQuotaFull) {
         this.compileBtn.disabled = true;
@@ -140,6 +154,12 @@ export class Synthesizer {
   }
 
   async handleCompile() {
+    const state = store.getState();
+    if (!state.user || state.user.isGuest) {
+      toast.info("Please sign in with your account to compile notebooks.");
+      window.dispatchEvent(new CustomEvent('open-auth-modal'));
+      return;
+    }
     const text = this.textarea ? this.textarea.value.trim() : '';
     const file = this.selectedFile;
 

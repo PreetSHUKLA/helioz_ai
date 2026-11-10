@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_file
 import os
 import json
 import uuid
+import threading
 from functools import wraps
 from dotenv import load_dotenv
 from main import generate_full_course
@@ -24,7 +25,16 @@ try:
     import firebase_admin
     from firebase_admin import credentials, auth as fb_auth, firestore as fb_firestore
 
-    if os.path.exists(firebase_creds_path):
+    firebase_creds_raw = os.getenv("FIREBASE_CREDENTIALS_RAW")
+    if firebase_creds_raw:
+        cred_dict = json.loads(firebase_creds_raw)
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred)
+        db = fb_firestore.client()
+        auth = fb_auth
+        FIREBASE_ENABLED = True
+        print("[Firebase] Initialized successfully from FIREBASE_CREDENTIALS_RAW environment variable.")
+    elif os.path.exists(firebase_creds_path):
         cred = credentials.Certificate(firebase_creds_path)
         firebase_admin.initialize_app(cred)
         db = fb_firestore.client()
@@ -41,21 +51,24 @@ except Exception as e:
     print(f"[Firebase] Notice: Firebase initialization bypassed ({e}).")
     print("[Persistence] Using local workspace JSON storage for notebooks.")
 
-# Local storage fallback directory & file
+# Local storage fallback directory, file & thread-lock
 LOCAL_DATA_FILE = os.path.join(os.path.dirname(__file__), "local_notebooks.json")
+local_db_lock = threading.Lock()
 
 def load_local_notebooks():
-    if os.path.exists(LOCAL_DATA_FILE):
-        try:
-            with open(LOCAL_DATA_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return []
-    return []
+    with local_db_lock:
+        if os.path.exists(LOCAL_DATA_FILE):
+            try:
+                with open(LOCAL_DATA_FILE, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                return []
+        return []
 
 def save_local_notebooks(notebooks):
-    with open(LOCAL_DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(notebooks, f, indent=2)
+    with local_db_lock:
+        with open(LOCAL_DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(notebooks, f, indent=2)
 
 # ===================================================
 # AUTHENTICATION MIDDLEWARE
@@ -117,6 +130,17 @@ def get_system_status():
         "storage_mode": "Firestore Cloud" if FIREBASE_ENABLED else "Local Workspace Storage"
     })
 
+
+import time
+
+@app.route('/api/test-slow', methods=['GET'])
+def test_slow_endpoint():
+    """Simulates a 3-second wait for Meta AI / YouTube API"""
+    req_id = request.args.get('id', '1')
+    print(f"[Thread Worker] Request {req_id} received. Simulating 3-second API wait...")
+    time.sleep(3)
+    print(f"[Thread Worker] Request {req_id} API response received!")
+    return jsonify({"message": f"Request {req_id} finished after 3s API wait"})
 # ===================================================
 # 1. GENERATE AND SAVE NOTEBOOK (Enforces 3 notebook limit)
 # ===================================================
@@ -124,6 +148,12 @@ def get_system_status():
 @verify_firebase_token
 def generate_course():
     try:
+
+
+        if not request.user_id or request.user_id in ["local-developer", "demo-token", "guest-user-1"]:
+            return jsonify({
+                "error": "Authentication required. Please sign in to compile and save notebooks."
+            }), 401
         # Check existing notebook count for this user
         if FIREBASE_ENABLED:
             existing_docs = list(db.collection('notebooks').where('user_id', '==', request.user_id).stream())
@@ -144,13 +174,17 @@ def generate_course():
 
         course_data = None
         if image_file and image_file.filename != '':
-            temp_path = "temp_syllabus.jpg"
+            temp_filename = f"temp_syllabus_{uuid.uuid4().hex[:8]}.jpg"
+            temp_path = os.path.join(os.path.dirname(__file__), temp_filename)
             image_file.save(temp_path)
             try:
                 course_data = generate_full_course(syllabus_image=temp_path, max_topics=3)
             finally:
                 if os.path.exists(temp_path):
-                    os.remove(temp_path)
+                    try:
+                        os.remove(temp_path)
+                    except Exception:
+                        pass
         elif syllabus_text and syllabus_text.strip() != '':
             course_data = generate_full_course(syllabus_text=syllabus_text, max_topics=3)
         else:
@@ -240,4 +274,15 @@ def delete_notebook(notebook_id):
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 5000))
     print(f"\n[+] Helioz AI Course Studio running on http://127.0.0.1:{port}")
-    app.run(host='0.0.0.0', port=port, debug=True)
+    
+    # Check if high-concurrency WSGI server (Waitress) is available
+    try:
+        from waitress import serve
+        threads = int(os.getenv("SERVER_THREADS", 16))
+        print(f"[*] Multi-threaded Waitress WSGI server active with {threads} worker threads.")
+        print(f"[*] Concurrent requests will be handled in parallel across threads.\n")
+        serve(app, host='0.0.0.0', port=port, threads=threads)
+    except ImportError:
+        print(f"[*] Running Flask multi-threaded server (threaded=True).")
+        print(f"[*] (For production high-load concurrency, run: pip install waitress)\n")
+        app.run(host='0.0.0.0', port=port, debug=False, threaded=True)

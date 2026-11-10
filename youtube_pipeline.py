@@ -3,6 +3,7 @@ import requests
 import os
 import re
 import html
+import math
 from dotenv import load_dotenv
 
 # Force dotenv to override any system variables
@@ -13,6 +14,32 @@ RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
 
 # Preferred caption languages in priority order (English, Indian English, Hindi)
 PREFERRED_LANGS = ["en", "en-IN", "en-US", "hi"]
+
+
+def _dedupe_langs(lang_list):
+    """Preserves priority order while removing duplicate language codes."""
+    return list(dict.fromkeys(lang_list))
+
+
+def compute_video_score(stats_dict):
+    """
+    Computes a Bayesian-damped logarithmic engagement score:
+      Score = ((Likes + 5 * Comments) / (Views + 2000)) * log10(Views + 1)
+    Balances audience interaction (comments/likes) against view volume
+    while preventing tiny-view videos or old viral clips from distorting ranks.
+    """
+    if not stats_dict:
+        return 0.0
+
+    views = int(stats_dict.get("viewCount", 0))
+    likes = int(stats_dict.get("likeCount", 0))
+    comments = int(stats_dict.get("commentCount", 0))
+
+    damped_engagement = (likes + (5 * comments)) / (views + 2000)
+    volume_weight = math.log10(views + 1)
+
+    return round(damped_engagement * volume_weight, 4)
+
 
 # ======================================================================
 # TRANSCRIPT STRATEGY:
@@ -26,7 +53,7 @@ def _get_transcript_tier1_free(video_id, preferred_langs=None):
     Uses the open-source youtube-transcript-api package.
     Supports both v1.x instance API (.fetch/.list) and legacy v0.6 static API.
     """
-    langs = preferred_langs or PREFERRED_LANGS
+    langs = _dedupe_langs(preferred_langs or PREFERRED_LANGS)
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
 
@@ -86,7 +113,7 @@ def _get_transcript_tier2_rapidapi(video_id, rapid_key, lang="en"):
         "x-rapidapi-host": "youtube-transcriptor.p.rapidapi.com"
     }
 
-    for try_lang in [lang, "en", "hi"]:
+    for try_lang in _dedupe_langs([lang, "en", "hi"]):
         try:
             params = {"video_id": video_id, "lang": try_lang}
             response = requests.get(url, headers=headers, params=params, timeout=20)
@@ -121,7 +148,7 @@ def _get_transcript_tier3_rapidapi_original(video_id, rapid_key, lang="en"):
         "x-rapidapi-host": "youtube-captions-transcript-subtitles-video-combiner.p.rapidapi.com"
     }
 
-    for try_lang in [lang, "en", "hi"]:
+    for try_lang in _dedupe_langs([lang, "en", "hi"]):
         try:
             response = requests.get(url, headers=headers, params={"language": try_lang}, timeout=25)
 
@@ -171,7 +198,8 @@ def fetch_transcript(video_id, rapid_key=None, prefer_hindi=False):
 def get_candidate_videos(topic, target_count=4):
     """
     Searches YouTube for focused (4-20 min) videos matching the micro-topic,
-    then retrieves their transcripts using the 3-tier strategy.
+    ranks the candidates using the Bayesian-damped engagement score,
+    and retrieves transcripts for the top-performing videos using the 3-tier strategy.
     """
     youtube_key = os.getenv("YOUTUBE_API_KEY", YOUTUBE_API_KEY)
     rapid_key = os.getenv("RAPIDAPI_KEY", RAPIDAPI_KEY)
@@ -191,7 +219,7 @@ def get_candidate_videos(topic, target_count=4):
 
     try:
         youtube = build("youtube", "v3", developerKey=youtube_key)
-        
+
         # videoDuration='medium' restricts results to 4-20 mins (ideal for 10-min micro-topics)
         # videoEmbeddable='true' ensures the video won't be blocked if embedded in a frontend UI
         search_response = youtube.search().list(
@@ -221,6 +249,35 @@ def get_candidate_videos(topic, target_count=4):
                 if fb_id and fb_id not in seen_ids:
                     items.append(fb_item)
 
+        # Batch-fetch view, like, and comment statistics (costs 1 quota unit total)
+        video_stats = {}
+        video_scores = {}
+        video_ids = [
+            item.get("id", {}).get("videoId")
+            for item in items
+            if item.get("id", {}).get("videoId")
+        ]
+
+        if video_ids:
+            try:
+                stats_response = youtube.videos().list(
+                    part="statistics",
+                    id=",".join(video_ids)
+                ).execute()
+                for stat_item in stats_response.get("items", []):
+                    vid = stat_item.get("id")
+                    stats = stat_item.get("statistics", {})
+                    video_stats[vid] = stats
+                    video_scores[vid] = compute_video_score(stats)
+
+                # Sort candidate pool by highest Bayesian engagement score
+                items.sort(
+                    key=lambda x: video_scores.get(x.get("id", {}).get("videoId"), 0.0),
+                    reverse=True
+                )
+            except Exception as stats_err:
+                print(f"    [!] Warning: Could not fetch video stats for ranking ({stats_err}). Using default relevance order.")
+
     except Exception as e:
         print(f"    [!] YouTube Search API Error: {e}")
         return []
@@ -236,6 +293,11 @@ def get_candidate_videos(topic, target_count=4):
         title = html.unescape(raw_title)
         safe_title = title.encode("ascii", errors="replace").decode("ascii")
 
+        score = video_scores.get(video_id, 0.0)
+        stats = video_stats.get(video_id, {})
+        comments = int(stats.get("commentCount", 0))
+        likes = int(stats.get("likeCount", 0))
+
         transcript, source = fetch_transcript(video_id, rapid_key, prefer_hindi=prefer_hindi)
 
         if transcript:
@@ -244,9 +306,15 @@ def get_candidate_videos(topic, target_count=4):
                 "title": title,
                 "transcript": transcript
             })
-            print(f"    [+] Got transcript via '{source}': {safe_title[:55]}...")
+            print(
+                f"    [+] [Score: {score:.3f} | Likes: {likes:,} | Comments: {comments:,}] "
+                f"Got transcript via '{source}': {safe_title[:45]}..."
+            )
         else:
-            print(f"    [-] No transcript available:  {safe_title[:55]}...")
+            print(
+                f"    [-] [Score: {score:.3f} | Likes: {likes:,} | Comments: {comments:,}] "
+                f"No transcript available: {safe_title[:45]}..."
+            )
 
         if len(candidates) >= target_count:
             break

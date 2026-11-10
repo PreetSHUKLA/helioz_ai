@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>Helioz AI — Autonomous Course Studio</title>
 
   <!-- External Stylesheets & Fonts -->
@@ -14,56 +16,57 @@
   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
+
 <body>
 
-  <!-- Ambient Light Effect -->
+  <!-- Kept for compatibility; hidden by theme.css -->
   <div class="ambient-glow"></div>
 
   <!-- ===================================================
        1. GLOBAL COMMAND BAR (TOP NAVIGATION)
        =================================================== -->
   <header class="command-bar">
-    <!-- Brand Mark -->
+    <!-- Brand -->
     <div class="brand-capsule" id="brand-mark" title="Return to Studio">
       <div class="brand-glyph">H*</div>
       <div class="brand-text">
-        HELIOZ
-        <span class="brand-tag">STUDIO</span>
+        Helioz
+        <span class="brand-tag">Studio</span>
       </div>
     </div>
 
-    <!-- Telemetry Cluster -->
+    <!-- Status -->
     <div class="telemetry-cluster">
       <div class="telemetry-pill" id="telemetry-llm">
         <span class="telemetry-dot"></span>
-        <span>LLM: META LLAMA</span>
+        <span>Model: Meta Llama</span>
       </div>
       <div class="telemetry-pill" id="telemetry-quota">
         <span class="telemetry-dot"></span>
-        <span>QUOTA: 0/3 NOTEBOOKS</span>
+        <span>Quota: 0/3 notebooks</span>
       </div>
       <div class="telemetry-pill" id="telemetry-storage" style="display: none;">
-        <span>STORE: WORKSPACE</span>
+        <span>Storage: Workspace</span>
       </div>
     </div>
 
-    <!-- User / Auth Actions -->
+    <!-- Account -->
     <div class="auth-capsule">
       <button class="btn-ghost" id="header-auth-btn">
-        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
-        Sign In
+        Sign in
       </button>
 
-      <div class="telemetry-pill" id="header-user-pill" style="display: none; background: var(--bg-surface-elevated); border-color: var(--border-medium);">
-        <svg width="14" height="14" fill="none" stroke="var(--solar-400)" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      <div class="telemetry-pill user-pill" id="header-user-pill" style="display: none;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
-        <span id="header-user-email" style="font-weight: 600; color: var(--text-primary);">Developer</span>
-        <button id="header-logout-btn" style="background: none; border: none; color: var(--text-muted); cursor: pointer; margin-left: 0.25rem;" title="Sign Out">
-          ✕
-        </button>
+        <span class="user-pill-email" id="header-user-email">Developer</span>
+        <button class="icon-btn" id="header-logout-btn" title="Sign out" aria-label="Sign out">✕</button>
       </div>
     </div>
   </header>
@@ -73,152 +76,145 @@
        =================================================== -->
   <main class="workspace bg-subtle-grid">
 
-    <!-- VIEW A: STUDIO & GALLERY VIEW -->
+    <!-- VIEW A: STUDIO & GALLERY -->
     <section class="studio-layout" id="studio-view">
-      
-      <!-- Left Column: Synthesizer Dock -->
+
+      <!-- Left column: course creator -->
       <aside class="synthesizer-dock">
         <div>
           <div class="section-label">
-            <span>// SYNTHESIS ENGINE</span>
-            <span>META LLAMA</span>
+            <span>Course creator</span>
+            <span>Meta Llama</span>
           </div>
-          <h2 class="synthesizer-title">Compile Course</h2>
+          <h2 class="synthesizer-title">Create a course</h2>
           <p class="synthesizer-desc">
-            Deconstruct any syllabus into micro-modules with vetted lectures and active-recall quizzes.
+            Turn any syllabus into short modules, each with a curated lecture and a quiz.
           </p>
         </div>
 
-        <!-- Prompt Textarea Chassis -->
+        <!-- Prompt -->
         <div class="prompt-chassis">
-          <textarea 
-            id="syllabus-input" 
-            class="prompt-textarea" 
-            placeholder="Enter syllabus topics or learning targets...&#10;e.g. Master C Pointers, Dynamic Memory, and Structs"
-          ></textarea>
+          <textarea id="syllabus-input" class="prompt-textarea"
+            placeholder="Enter topics or learning goals&#10;e.g. C pointers, dynamic memory, and structs"></textarea>
 
-          <!-- Prompt Quick Templates -->
-          <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; pt: 0.25rem;">
-            <span style="font-size: 0.6875rem; color: var(--text-muted); font-family: var(--font-mono); line-height: 1.8;">PRESETS:</span>
-            <button class="modifier-pill" data-prompt-preset="Pointers, Dynamic Memory Allocation (malloc, free), and Memory Leaks in C">C Memory</button>
-            <button class="modifier-pill" data-prompt-preset="Linear Algebra: Matrix Transformations, Determinants, and Eigenvectors">Linear Algebra</button>
-            <button class="modifier-pill" data-prompt-preset="Binary Search Trees, Red-Black Trees, and AVL Rotations with Complexity">DSA Trees</button>
+          <!-- Presets -->
+          <div class="presets-row">
+            <span class="presets-label">Try:</span>
+            <button class="modifier-pill"
+              data-prompt-preset="Pointers, Dynamic Memory Allocation (malloc, free), and Memory Leaks in C">C
+              memory</button>
+            <button class="modifier-pill"
+              data-prompt-preset="Linear Algebra: Matrix Transformations, Determinants, and Eigenvectors">Linear
+              algebra</button>
+            <button class="modifier-pill"
+              data-prompt-preset="Binary Search Trees, Red-Black Trees, and AVL Rotations with Complexity">Trees</button>
           </div>
         </div>
 
-        <!-- Syllabus Document / Camera Dropzone -->
+        <!-- Syllabus image -->
         <div>
-          <div class="section-label" style="margin-bottom: 0.5rem;">
-            <span>SCAN SYLLABUS IMAGE</span>
+          <div class="section-label dock-field-label">
+            <span>Syllabus photo</span>
           </div>
           <div class="dropzone" id="syllabus-dropzone">
             <input type="file" id="syllabus-file-input" accept="image/*" style="display: none;">
-            
+
             <div id="dropzone-default-content" style="display: flex; align-items: center; gap: 0.5rem;">
-              <svg width="18" height="18" fill="none" stroke="var(--solar-400)" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <svg class="dropzone-icon" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span class="dropzone-text">Drop syllabus photo or click to browse</span>
+              <span class="dropzone-text">Drop an image or click to browse</span>
             </div>
 
             <div class="dropzone-file-pill" id="dropzone-file-pill">
               <span id="dropzone-file-name">document.jpg</span>
-              <button id="dropzone-file-remove" style="background: none; border: none; color: var(--accent-rose); cursor: pointer; font-weight: bold;">✕</button>
+              <button id="dropzone-file-remove" aria-label="Remove file">✕</button>
             </div>
           </div>
         </div>
 
-        <!-- Pedagogical Modifier Toggles -->
+        <!-- Teaching style -->
         <div>
-          <div class="section-label" style="margin-bottom: 0.5rem;">
-            <span>PEDAGOGICAL MODIFIERS</span>
+          <div class="section-label dock-field-label">
+            <span>Teaching style</span>
           </div>
           <div class="modifiers-cluster">
-            <span class="modifier-pill" data-modifier="Code Demo & Implementation">Code Demos</span>
+            <span class="modifier-pill" data-modifier="Code Demo & Implementation">Code demos</span>
             <span class="modifier-pill" data-modifier="In Hindi">In Hindi</span>
-            <span class="modifier-pill" data-modifier="Technical Interview Preparation">Interview Focus</span>
-            <span class="modifier-pill" data-modifier="From First Principles & Intuition">First Principles</span>
-            <span class="modifier-pill" data-modifier="Mathematical Proofs & Derivations">Math Derivations</span>
+            <span class="modifier-pill" data-modifier="Technical Interview Preparation">Interview prep</span>
+            <span class="modifier-pill" data-modifier="From First Principles & Intuition">First principles</span>
+            <span class="modifier-pill" data-modifier="Mathematical Proofs & Derivations">Math derivations</span>
           </div>
         </div>
 
-        <!-- Compile Action Trigger -->
-        <button class="btn-primary" id="btn-compile-course" style="padding: 0.875rem 1.25rem; font-size: 0.9375rem; margin-top: auto;">
-          <span>Compile Curriculum</span>
-          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+        <!-- Create -->
+        <button class="btn-primary" id="btn-compile-course">
+          <span>Create course</span>
         </button>
       </aside>
 
-      <!-- Right Column: Gallery & Archives -->
+      <!-- Right column: gallery -->
       <section class="gallery-pane">
         <div class="gallery-tabs">
-          <button class="tab-btn active" id="tab-academy-btn">Curated Academy</button>
+          <button class="tab-btn active" id="tab-academy-btn">Academy</button>
           <button class="tab-btn" id="tab-notebooks-btn">
-            My Notebooks (<span id="notebooks-count-badge">0</span>/3)
+            My notebooks (<span id="notebooks-count-badge">0</span>/3)
           </button>
         </div>
 
-        <!-- Cards Injection Grid -->
-        <div class="cards-grid" id="cards-grid">
-          <!-- Populated dynamically by dashboard.js -->
-        </div>
+        <!-- Cards injected by dashboard.js -->
+        <div class="cards-grid" id="cards-grid"></div>
       </section>
     </section>
 
-    <!-- VIEW B: STUDY THEATER & QUIZ RUNNER -->
+    <!-- VIEW B: STUDY THEATER & QUIZ -->
     <section class="theater-layout" id="theater-view" style="display: none;">
-      
-      <!-- Curriculum Outline Rail -->
+
+      <!-- Curriculum rail -->
       <aside class="curriculum-rail" id="curriculum-rail">
         <div class="rail-header">
-          <div>
-            <span class="section-label">ROADMAP</span>
-            <h3 style="font-size: 1.125rem; margin-top: 0.25rem;">Curriculum Rail</h3>
-          </div>
+          <h3 class="rail-title">Curriculum</h3>
         </div>
-        <div class="rail-list" id="curriculum-rail-list">
-          <!-- Injected dynamically by player.js -->
-        </div>
+        <!-- Injected by player.js -->
+        <div class="rail-list" id="curriculum-rail-list"></div>
       </aside>
 
-      <!-- Stage Arena -->
+      <!-- Stage -->
       <main class="stage-arena">
-        <!-- Stage Toolbar -->
         <div class="stage-toolbar">
-          <div style="min-width: 0; flex: 1;">
-            <span id="theater-course-title" style="font-size: 0.75rem; color: var(--solar-400); font-family: var(--font-mono); text-transform: uppercase;">Course Title</span>
-            <h2 id="theater-module-title" class="truncate-1" style="font-size: 1.25rem; margin-top: 0.15rem;">Module Topic</h2>
+          <div class="stage-toolbar-info">
+            <span id="theater-course-title" class="stage-course-title">Course title</span>
+            <h2 id="theater-module-title" class="truncate-1 stage-module-title">Module topic</h2>
           </div>
 
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <button class="btn-ghost" id="theater-cinema-btn" title="Toggle Cinema Expansion">
-              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          <div class="stage-toolbar-actions">
+            <button class="btn-ghost" id="theater-cinema-btn" title="Toggle cinema mode">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
               </svg>
               Cinema
             </button>
             <button class="btn-ghost" id="theater-take-quiz-btn">
-              Knowledge Check
+              Take quiz
             </button>
-            <button class="btn-primary" id="theater-exit-btn" style="padding: 0.45rem 1rem;">
-              Exit Studio
+            <button class="btn-primary" id="theater-exit-btn">
+              Exit
             </button>
           </div>
         </div>
 
-        <!-- Video Player Stage -->
+        <!-- Video -->
         <div class="video-screen-container">
           <div class="video-frame-aspect">
             <div id="yt-player-target"></div>
           </div>
         </div>
 
-        <!-- Active Recall Quiz Section -->
-        <section id="quiz-section">
-          <!-- Injected dynamically by quiz.js -->
-        </section>
+        <!-- Quiz injected by quiz.js -->
+        <section id="quiz-section"></section>
       </main>
     </section>
 
@@ -227,63 +223,79 @@
   <!-- ===================================================
        3. MODALS & OVERLAYS
        =================================================== -->
-  
-  <!-- Compiler Progress Modal -->
+
+  <!-- Progress modal -->
   <div class="modal-backdrop" id="compiler-modal" style="display: none;">
     <div class="modal-content">
-      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-        <div class="brand-glyph" style="width: 32px; height: 32px; font-size: 0.875rem;">AI</div>
+      <div class="modal-head modal-head-brand">
+        <div class="brand-glyph">AI</div>
         <div>
-          <h3 style="font-size: 1.25rem;">Synthesizing Curriculum</h3>
-          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Meta Llama reasoning & lecture ranking pipeline...</p>
+          <h3 class="modal-title">Creating your course</h3>
+          <p class="modal-subtitle">Finding lectures and writing quizzes.</p>
         </div>
       </div>
 
       <div class="compiler-terminal" id="compiler-terminal-log">
-        <!-- Live status steps streamed here -->
+        <!-- Live status lines streamed here -->
       </div>
     </div>
   </div>
 
-  <!-- Authentication Modal -->
+  <!-- Authentication modal -->
   <div class="modal-backdrop" id="auth-modal" style="display: none;">
     <div class="modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+      <div class="modal-head">
         <div>
-          <h3 id="auth-modal-title" style="font-size: 1.5rem;">Welcome Back</h3>
-          <p id="auth-modal-subtitle" style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
-            Sign in to access and persist your course notebooks.
+          <h3 class="modal-title" id="auth-modal-title">Welcome back</h3>
+          <p class="modal-subtitle" id="auth-modal-subtitle">
+            Sign in to save your notebooks.
           </p>
         </div>
-        <button id="auth-modal-close" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.25rem;">✕</button>
+        <button class="icon-btn" id="auth-modal-close" aria-label="Close">✕</button>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <div class="modal-stack">
         <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem; font-family: var(--font-mono);">EMAIL</label>
-          <input type="email" id="auth-email" class="prompt-chassis" style="width: 100%; padding: 0.75rem; color: var(--text-primary); font-size: 0.9375rem;" placeholder="developer@helioz.ai">
+          <label class="field-label" for="auth-email">Email</label>
+          <input type="email" id="auth-email" class="prompt-chassis field-input" placeholder="you@example.com">
         </div>
         <div>
-          <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem; font-family: var(--font-mono);">PASSWORD</label>
-          <input type="password" id="auth-password" class="prompt-chassis" style="width: 100%; padding: 0.75rem; color: var(--text-primary); font-size: 0.9375rem;" placeholder="••••••••••••">
+          <label class="field-label" for="auth-password">Password</label>
+          <input type="password" id="auth-password" class="prompt-chassis field-input" placeholder="••••••••••••">
         </div>
 
-        <button class="btn-primary" id="auth-submit-btn" style="padding: 0.875rem; font-size: 1rem; width: 100%; margin-top: 0.5rem;">
-          Sign In
+        <button class="btn-primary btn-block" id="auth-submit-btn">
+          Sign in
         </button>
 
-        <button class="btn-ghost" id="auth-guest-btn" style="justify-content: center; width: 100%;">
-          ⚡ Continue as Guest (Instant Dev Mode)
+        <button type="button" class="btn-ghost" id="auth-google-btn"
+          style="justify-content: center; width: 100%; gap: 0.5rem; border: 1px solid var(--border-medium); background: var(--bg-surface-elevated);">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+          </svg>
+          Continue with Google
         </button>
 
-        <p id="auth-toggle-mode" style="text-align: center; font-size: 0.8125rem; color: var(--text-muted); cursor: pointer; margin-top: 0.5rem;">
-          Don't have an account? Sign Up
+        <button class="btn-ghost btn-block" id="auth-guest-btn">
+          Continue as guest
+        </button>
+
+        <p class="auth-toggle" id="auth-toggle-mode">
+          Don't have an account? Sign up
         </p>
       </div>
     </div>
   </div>
 
-  <!-- Modular Application Entry Script -->
+  <!-- Application entry script -->
   <script type="module" src="/static/js/app.js"></script>
 </body>
+
 </html>

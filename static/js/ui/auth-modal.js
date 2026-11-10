@@ -18,6 +18,7 @@ export class AuthModal {
     this.toggleModeBtn = document.getElementById('auth-toggle-mode');
     this.guestBtn = document.getElementById('auth-guest-btn');
     this.closeBtn = document.getElementById('auth-modal-close');
+    this.googleBtn = document.getElementById('auth-google-btn');
 
     this.isLoginMode = true;
     this.firebaseAuth = null;
@@ -31,7 +32,7 @@ export class AuthModal {
       try {
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js');
         const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js');
-        
+
         const app = initializeApp(firebaseConfig);
         this.firebaseAuth = getAuth(app);
 
@@ -74,6 +75,9 @@ export class AuthModal {
     if (this.closeBtn) {
       this.closeBtn.addEventListener('click', () => this.hide());
     }
+    if (this.googleBtn) {
+      this.googleBtn.addEventListener('click', () => this.handleGoogleAuth());
+    }
 
     if (this.toggleModeBtn) {
       this.toggleModeBtn.addEventListener('click', () => {
@@ -92,6 +96,10 @@ export class AuthModal {
     if (this.guestBtn) {
       this.guestBtn.addEventListener('click', () => this.loginAsGuest());
     }
+
+    if (this.googleBtn) {
+      this.googleBtn.addEventListener('click', () => this.handleGoogleAuth());
+    }
   }
 
   show() {
@@ -108,6 +116,23 @@ export class AuthModal {
       userToken: "demo-token"
     });
     this.hide();
+  }
+  async handleGoogleAuth() {
+    if (!this.firebaseAuth) {
+      toast.error("Firebase is not configured yet in config.js");
+      return;
+    }
+
+    try {
+      const { GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js');
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(this.firebaseAuth, provider);
+      toast.success("Signed in with Google successfully!");
+      this.hide();
+    } catch (err) {
+      console.error("Google Auth Error:", err);
+      toast.error(err.message || "Google sign-in failed.");
+    }
   }
 
   async handleAuth() {

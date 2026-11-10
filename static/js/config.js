@@ -6,12 +6,13 @@
 // REPLACE WITH YOUR FIREBASE WEB APP CONFIGURATION IF USING FIREBASE AUTH
 // (Obtain from Firebase Console -> Project Settings -> General -> Your apps -> Web app)
 export const firebaseConfig = {
-  apiKey: "AIzaSy_YOUR_FIREBASE_WEB_API_KEY",
-  authDomain: "your-project-id.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project-id.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890"
+  apiKey: "AIzaSyAa3ESZpGZ_hoY3-sMvPiLDFpCkcTqBxwc",
+  authDomain: "helioz-e8c32.firebaseapp.com",
+  projectId: "helioz-e8c32",
+  storageBucket: "helioz-e8c32.firebasestorage.app",
+  messagingSenderId: "960866423324",
+  appId: "1:960866423324:web:0972c9b2bf8c27924385d9",
+  measurementId: "G-26XWN4N2FC"
 };
 
 // Check if Firebase credentials have been configured by the user
