@@ -48,12 +48,50 @@ def compute_video_score(stats_dict):
 #   Tier 3 (RapidAPI)     : youtube-captions-... host (last resort)
 # ======================================================================
 
+def _build_proxy_config():
+    """
+    Constructs a proxy configuration from environment variables PROXY_URL or WEBSHARE_PROXY_URL.
+    Supports both modern v1.x ProxyConfig and legacy v0.6 proxies dict for requests.
+    """
+    proxy_url = os.getenv("PROXY_URL") or os.getenv("WEBSHARE_PROXY_URL")
+    if not proxy_url or not proxy_url.strip():
+        return None, None
+
+    proxy_url = proxy_url.strip()
+    proxies_dict = {"http": proxy_url, "https": proxy_url}
+    proxy_config = None
+
+    try:
+        from youtube_transcript_api.proxies import GenericProxyConfig, WebshareProxyConfig
+        # Check if URL is a Webshare proxy to leverage WebshareProxyConfig with built-in rotation
+        if "webshare.io" in proxy_url and "@" in proxy_url:
+            try:
+                # Format: http://username:password@p.webshare.io:80/
+                auth_part = proxy_url.split("://")[-1].split("@")[0]
+                user, password = auth_part.split(":", 1)
+                proxy_config = WebshareProxyConfig(
+                    proxy_username=user,
+                    proxy_password=password,
+                    retries_when_blocked=3
+                )
+            except Exception:
+                proxy_config = GenericProxyConfig(http_url=proxy_url, https_url=proxy_url)
+        else:
+            proxy_config = GenericProxyConfig(http_url=proxy_url, https_url=proxy_url)
+    except Exception:
+        pass
+
+    return proxy_config, proxies_dict
+
+
 def _get_transcript_tier1_free(video_id, preferred_langs=None):
     """
-    Uses the open-source youtube-transcript-api package.
+    Uses the open-source youtube-transcript-api package with proxy support.
     Supports both v1.x instance API (.fetch/.list) and legacy v0.6 static API.
     """
     langs = _dedupe_langs(preferred_langs or PREFERRED_LANGS)
+    proxy_config, proxies_dict = _build_proxy_config()
+
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
 
@@ -61,7 +99,7 @@ def _get_transcript_tier1_free(video_id, preferred_langs=None):
 
         # Support new youtube-transcript-api (v1.0+) instance methods
         if hasattr(YouTubeTranscriptApi, "fetch"):
-            ytt_api = YouTubeTranscriptApi()
+            ytt_api = YouTubeTranscriptApi(proxy_config=proxy_config) if proxy_config else YouTubeTranscriptApi()
             try:
                 fetched = ytt_api.fetch(video_id, languages=langs)
             except Exception:
@@ -78,9 +116,24 @@ def _get_transcript_tier1_free(video_id, preferred_langs=None):
         # Fallback if environment has youtube-transcript-api v0.6.x installed
         elif hasattr(YouTubeTranscriptApi, "get_transcript"):
             try:
-                fetched = YouTubeTranscriptApi.get_transcript(video_id, languages=langs)
+                kwargs = {"languages": langs}
+                if proxies_dict:
+                    kwargs["proxies"] = proxies_dict
+                fetched = YouTubeTranscriptApi.get_transcript(video_id, **kwargs)
             except Exception:
-                return None
+                try:
+                    kwargs = {}
+                    if proxies_dict:
+                        kwargs["proxies"] = proxies_dict
+                    transcript_list = YouTubeTranscriptApi.list_transcripts(video_id, **kwargs)
+                    for t in transcript_list:
+                        try:
+                            fetched = t.fetch()
+                            break
+                        except Exception:
+                            continue
+                except Exception:
+                    return None
 
         if not fetched:
             return None
@@ -174,11 +227,13 @@ def fetch_transcript(video_id, rapid_key=None, prefer_hindi=False):
     """
     langs = ["hi", "en-IN", "en", "en-US"] if prefer_hindi else PREFERRED_LANGS
     primary_lang = "hi" if prefer_hindi else "en"
+    has_proxy = bool(os.getenv("PROXY_URL") or os.getenv("WEBSHARE_PROXY_URL"))
 
-    # Tier 1: Free library (fastest, no key needed)
+    # Tier 1: Free library (fastest, supports residential/rotating proxy)
     text = _get_transcript_tier1_free(video_id, preferred_langs=langs)
     if text:
-        return text, "free-library"
+        source_name = "free-library-proxy" if has_proxy else "free-library"
+        return text, source_name
 
     # Tier 2: RapidAPI youtube-transcriptor
     if rapid_key:
@@ -203,10 +258,15 @@ def get_candidate_videos(topic, target_count=4):
     """
     youtube_key = os.getenv("YOUTUBE_API_KEY", YOUTUBE_API_KEY)
     rapid_key = os.getenv("RAPIDAPI_KEY", RAPIDAPI_KEY)
+    proxy_url = os.getenv("PROXY_URL") or os.getenv("WEBSHARE_PROXY_URL")
 
     if not youtube_key or youtube_key.strip() in ("", "your_youtube_api_key_here"):
         print("[YouTube Pipeline] YOUTUBE_API_KEY is not configured in .env. Skipping.")
         return []
+
+    if proxy_url:
+        masked = proxy_url.split("@")[-1] if "@" in proxy_url else "configured"
+        print(f"[*] Proxy active for YouTube scraping: {masked}")
 
     if not rapid_key or rapid_key.strip() in ("", "your_rapidapi_key_here"):
         print("[YouTube Pipeline] RAPIDAPI_KEY not set. Using free transcript library only.")
@@ -321,5 +381,23 @@ def get_candidate_videos(topic, target_count=4):
 
     if not candidates:
         print(f"    [!] No candidates with transcripts found for: {topic}")
+        if items:
+            # Resilient fallback: use top-ranked candidate's title & overview
+            top_item = items[0]
+            top_vid = top_item.get("id", {}).get("videoId")
+            top_title = html.unescape(top_item.get("snippet", {}).get("title", "Untitled Video"))
+            top_desc = top_item.get("snippet", {}).get("description", "")
+            fallback_transcript = (
+                f"Video Title: {top_title}\n\n"
+                f"Course Topic: {topic}\n\n"
+                f"Overview & Key Concepts:\n{top_desc}\n\n"
+                f"Instruction: Comprehensive technical tutorial on {topic}."
+            )
+            print(f"    [!] Fallback to top-ranked video overview for: {top_title[:45]}...")
+            candidates.append({
+                "video_id": top_vid,
+                "title": top_title,
+                "transcript": fallback_transcript
+            })
 
     return candidates
